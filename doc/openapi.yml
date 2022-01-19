@@ -1,0 +1,817 @@
+openapi: 3.0.3
+info:
+    title: DjangoMollieExample
+    version: 1.0.0
+servers:
+    - url: http://localhost:8000/
+      description: Development server
+security:
+    - bearerAuth: []
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+    parameters:
+        limit:
+            name: limit
+            description: The maximum number of elements that is going to be sent. Defaults to 10.
+            in: query
+            required: false
+            schema:
+                type: integer
+            example: 10
+        offset:
+            name: offset
+            description: The offset of the slice of elements. Defaults to 0.
+            in: query
+            required: false
+            schema:
+                type: integer
+            example: 0
+        order_id:
+            name: order_id
+            description: The order id.
+            in: path
+            required: true
+            schema:
+                type: integer
+            example: 1
+        order_fields:
+            name: fields
+            description: 'The fields that are going to be sent. Available fields are: "order_id", "total", "date", "status", "checkout_url"'
+            in: query
+            required: false
+            schema:
+                type: string
+                description: 'A string of fields separated by a comma.'
+            example: 'order_id,date'
+        order_status:
+            name: status
+            description: Filters the orders that have the selected status.
+            in: query
+            required: false
+            schema:
+                $ref: '#/components/schemas/status'
+        order_date:
+            name: date
+            description: Filters the orders that have the specified date.
+            in: query
+            required: false
+            schema:
+                type: string
+                format: date-time
+                example: '2022-01-01T01:01:01.0Z'
+        order_date__lt:
+            name: date__lt
+            description: Filters the orders that have a date lower than the specified one.
+            in: query
+            required: false
+            schema:
+                type: string
+                format: date-time
+                example: '2022-01-01T01:01:01.0Z'
+        order_date__gt:
+            name: date__gt
+            description: Filters the orders that have a date greater than the specified one.
+            in: query
+            required: false
+            schema:
+                type: string
+                format: date-time
+                example: '2022-01-01T01:01:01.0Z'
+        detail_id:
+            name: detail_id
+            description: The detail id.
+            in: path
+            required: true
+            schema:
+                type: integer
+            example: 1
+        detail_fields:
+            name: fields
+            description: 'The fields that are going to be sent. Available fields are: "detail_id", "item", "quantity"'
+            in: query
+            required: false
+            schema:
+                type: string
+                description: 'A string of fields separated by a comma.'
+            example: 'detail_id'
+        detail_quantity:
+            name: quantity
+            description: Filters the details that have the specified quantity.
+            in: query
+            required: false
+            schema:
+                type: integer
+                example: 5
+        detail_quantity__lt:
+            name: quantity__lt
+            description: Filters the details that have a quantity lower than the specified one.
+            in: query
+            required: false
+            schema:
+                type: integer
+                example: 5
+        detail_quantity__gt:
+            name: quantity__gt
+            description: Filters the details that have a quantity greater than the specified one.
+            in: query
+            required: false
+            schema:
+                type: integer
+                example: 5
+        item_id:
+            name: item_id
+            description: The item id.
+            in: path
+            required: true
+            schema:
+                type: integer
+            example: 1
+        item_fields:
+            name: fields
+            description: 'The fields that are going to be sent. Available fields are: "item_id", "name", "price"'
+            in: query
+            required: false
+            schema:
+                type: string
+                description: 'A string of fields separated by a comma.'
+            example: 'name'
+        item_name:
+            name: name
+            description: Filters the items that have the specified name.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_name__iexact:
+            name: name__iexact
+            description: Filters the items that have the specified name (case insensitive).
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_name__contains:
+            name: name__contains
+            description: Filters the items that have the a name that contains the specified string.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_name__icontains:
+            name: name__icontains
+            description: Filters the items that have the a name that contains the specified string (case insensitive).
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_name__startwith:
+            name: name__startwith
+            description: Filters the items that have the a name that starts with the specified string.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_name__istartwith:
+            name: name__istartwith
+            description: Filters the items that have the a name that starts with the specified string (case insensitive).
+            in: query
+            required: false
+            schema:
+                type: string
+            example: 'foo'
+        item_price:
+            name: price
+            description: Filters the items that have the specified price in €.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: '4.2'
+        item_price__lt:
+            name: price__lt
+            description: Filters the items that have a price lower than the specified one.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: '4.2'
+        item_price__gt:
+            name: price__gt
+            description: Filters the items that have a price greater than the specified one.
+            in: query
+            required: false
+            schema:
+                type: string
+            example: '4.2'
+    schemas:
+        status:
+            type: string
+            enum:
+                - 'open'
+                - 'pending'
+                - 'canceled'
+                - 'expired'
+                - 'failed'
+                - 'paid'
+                - 'authorized'
+            description: The payment status of the order.
+            example: 'paid'
+        order:
+            type: object
+            properties:
+                order_id:
+                    type: integer
+                    description: The order id.
+                    example: 3
+                total:
+                    type: string
+                    description: The total price of the order in €.
+                    example: '42.50'
+                date:
+                    type: string
+                    format: date-time
+                    description: The date of the order.
+                    example: '2022-01-01T01:01:01.0Z'
+                status:
+                    $ref: '#/components/schemas/status'
+                checkout_url:
+                    type: string
+                    format: url
+                    description: The checkout url.
+                    example: 'https://www.mollie.com/checkout/5GHCfde7ref46747'
+        item:
+            type: object
+            properties:
+                item_id:
+                    type: integer
+                    description: The item id.
+                    example: 3
+                name:
+                    type: string
+                    description: The item name.
+                    example: 'foo'
+                price:
+                    type: string
+                    description: The item price in €.
+                    example: '4.20'
+        detail:
+            type: object
+            properties:
+                detail_id:
+                    type: integer
+                    description: The detail id.
+                    example: 3
+                item:
+                    $ref: '#/components/schemas/item'
+                quantity:
+                    type: integer
+                    description: The quantity of items.
+                    example: 2
+
+    responses:
+        Unauthorized:
+            description: Unauthorized.
+            content:
+                application/json:
+                    schema:
+                        oneOf:
+                            - type: object
+                              properties:
+                                  detail:
+                                      type: string
+                                      example: 'Given token not valid for any token type'
+                                  code:
+                                      type: string
+                                      example: 'token_not_valid'
+                                  message:
+                                      type: array
+                                      items:
+                                          type: object
+                                          properties:
+                                              token_class:
+                                                  type: string
+                                                  example: 'AccessToken'
+                                              token_type:
+                                                  type: string
+                                                  example: 'access'
+                                              message:
+                                                  type: string
+                                                  example: 'Token is invalid or expired'
+                                          required:
+                                              - token_class
+                                              - token_type
+                                              - message
+                              required:
+                                  - detail
+                                  - code
+                                  - message
+                            - type: object
+                              properties:
+                                  detail:
+                                      type: string
+                                      example: 'Authentication credentials were not provided.'
+                              required:
+                                  - detail
+        NotFound:
+            description: Not Found.
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            detail:
+                                type: string
+                                example: 'Not found.'
+                        required:
+                            - detail
+paths:
+    /api/v1/token/:
+        post:
+            tags: [Auth]
+            summary: Gets an access token and a refresh token.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                username:
+                                    type: string
+                                    description: The username.
+                                    example: 'admin'
+                                password:
+                                    type: string
+                                    format: password
+                                    description: The password.
+                                    example: 'admin'
+                            required:
+                                - username
+                                - password
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    access:
+                                        type: string
+                                        description: The access token.
+                                        example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQyNTg2ODMwLCJpYXQiOjE2NDI1ODY1MzAsImp0aSI6ImQ3YWMxOTU2NTU2ZjQzNWU5NmUzN2M4OWM3MDAzZmU1IiwidXNlcl9pZCI6MX0.zWuLftGpazJ055KYDCOkcgTekBhailSgziE5IxahGSM'
+                                    refresh:
+                                        type: string
+                                        description: The refresh token.
+                                        example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY0MjY3MjkzMCwiaWF0IjoxNjQyNTg2NTMwLCJqdGkiOiJiNmYwNzc5ODlkMTQ0ZjcxYmEwYWU2M2IwYzc0MjVhNyIsInVzZXJfaWQiOjF9.Y3Zpndvq-NGD7bUAXcCD-DE6vt5B4wICun2ojgkQ_CU'
+                                required:
+                                    - access
+                                    - refresh
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - type: object
+                                      properties:
+                                          detail:
+                                              type: string
+                                              description: error detail.
+                                              example: 'Invalid JSON.'
+                                    - type: object
+                                      properties:
+                                          username:
+                                              type: array
+                                              items:
+                                                  type: string
+                                                  description: username related error.
+                                                  example: 'This field may not be blank.'
+                                          password:
+                                              type: array
+                                              items:
+                                                  type: string
+                                                  description: password related error.
+                                                  example: 'This field may not be blank.'
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    detail:
+                                        type: string
+                                        example: 'No active account found with the given credentials.'
+                                required:
+                                    - detail
+
+    /api/v1/token/refresh/:
+        post:
+            tags: [Auth]
+            summary: Refresh an access token.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                refresh:
+                                    type: string
+                                    description: The refresh token.
+                                    example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY0MjY3MjkzMCwiaWF0IjoxNjQyNTg2NTMwLCJqdGkiOiJiNmYwNzc5ODlkMTQ0ZjcxYmEwYWU2M2IwYzc0MjVhNyIsInVzZXJfaWQiOjF9.Y3Zpndvq-NGD7bUAXcCD-DE6vt5B4wICun2ojgkQ_CU'
+                            required:
+                                - refresh
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    access:
+                                        type: string
+                                        description: The new access token.
+                                        example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQyNTg2ODMwLCJpYXQiOjE2NDI1ODY1MzAsImp0aSI6ImQ3YWMxOTU2NTU2ZjQzNWU5NmUzN2M4OWM3MDAzZmU1IiwidXNlcl9pZCI6MX0.zWuLftGpazJ055KYDCOkcgTekBhailSgziE5IxahGSM'
+                                required:
+                                    - access
+                '400':
+                    description: Bad Request
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - type: object
+                                      properties:
+                                          detail:
+                                              type: string
+                                              description: error detail.
+                                              example: 'Invalid JSON.'
+                                    - type: object
+                                      properties:
+                                          refresh:
+                                              type: array
+                                              items:
+                                                  type: string
+                                                  description: refresh related error.
+                                                  example: 'This field may not be blank.'
+                                      required:
+                                          - refresh
+                '401':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    detail:
+                                        type: string
+                                        example: 'Token is invalid or expired'
+                                    code:
+                                        type: string
+                                        example: 'token_not_valid'
+                                required:
+                                    - detail
+                                    - code
+
+    /api/v1/orders/:
+        get:
+            tags: [Orders]
+            summary: Gets the list of orders of the current user.
+            parameters:
+                - $ref: '#/components/parameters/limit'
+                - $ref: '#/components/parameters/offset'
+                - $ref: '#/components/parameters/order_fields'
+                - $ref: '#/components/parameters/order_status'
+                - $ref: '#/components/parameters/order_date'
+                - $ref: '#/components/parameters/order_date__lt'
+                - $ref: '#/components/parameters/order_date__gt'
+                - name: ordering
+                  description: 'The ordering of the list. Available fields are: "date", "status"'
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      description: 'A string of fields separated by a comma.'
+                  example: 'date'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    count:
+                                        type: integer
+                                        description: The number of elements in the response.
+                                        example: 10
+                                    next:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The next page of elements.
+                                        example: 'http://foo.com/api/v1/orders/?limit=10&offset=10'
+                                    previous:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The previous page of elements.
+                                        example: 'http://foo.com/api/v1/orders/?limit=10&offset=0'
+                                    results:
+                                        type: array
+                                        description: The list of orders.
+                                        items:
+                                            $ref: '#/components/schemas/order'
+                                required:
+                                    - count
+                                    - next
+                                    - previous
+                                    - results
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/orders/{order_id}/:
+        get:
+            tags: [Orders]
+            summary: Gets an order info of the current user.
+            parameters:
+                - $ref: '#/components/parameters/order_id'
+                - $ref: '#/components/parameters/order_fields'
+                - $ref: '#/components/parameters/order_status'
+                - $ref: '#/components/parameters/order_date'
+                - $ref: '#/components/parameters/order_date__lt'
+                - $ref: '#/components/parameters/order_date__gt'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/order'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/orders/{order_id}/details/:
+        get:
+            tags: [Orders, Details]
+            summary: Gets the details of an order of the current user.
+            parameters:
+                - $ref: '#/components/parameters/order_id'
+                - $ref: '#/components/parameters/limit'
+                - $ref: '#/components/parameters/offset'
+                - $ref: '#/components/parameters/detail_fields'
+                - $ref: '#/components/parameters/detail_quantity'
+                - $ref: '#/components/parameters/detail_quantity__lt'
+                - $ref: '#/components/parameters/detail_quantity__gt'
+                - name: ordering
+                  description: 'The ordering of the list. Available fields are: "quantity"'
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      description: 'A string of fields separated by a comma.'
+                  example: 'quantity'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    count:
+                                        type: integer
+                                        description: The number of elements in the response.
+                                        example: 10
+                                    next:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The next page of elements.
+                                        example: 'http://foo.com/api/v1/orders/1/details/?limit=10&offset=10'
+                                    previous:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The previous page of elements.
+                                        example: 'http://foo.com/api/v1/orders/1/details/?limit=10&offset=0'
+                                    results:
+                                        type: array
+                                        description: The list of details.
+                                        items:
+                                            $ref: '#/components/schemas/detail'
+                                required:
+                                    - count
+                                    - next
+                                    - previous
+                                    - results
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/orders/{order_id}/details/{detail_id}:
+        get:
+            tags: [Orders, Details]
+            summary: Gets a detail info of the current user.
+            parameters:
+                - $ref: '#/components/parameters/order_id'
+                - $ref: '#/components/parameters/detail_id'
+                - $ref: '#/components/parameters/detail_fields'
+                - $ref: '#/components/parameters/detail_quantity'
+                - $ref: '#/components/parameters/detail_quantity__lt'
+                - $ref: '#/components/parameters/detail_quantity__gt'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/detail'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/items/:
+        get:
+            tags: [Items]
+            summary: Gets the list of available items.
+            parameters:
+                - $ref: '#/components/parameters/limit'
+                - $ref: '#/components/parameters/offset'
+                - $ref: '#/components/parameters/item_fields'
+                - $ref: '#/components/parameters/item_name'
+                - $ref: '#/components/parameters/item_name__iexact'
+                - $ref: '#/components/parameters/item_name__contains'
+                - $ref: '#/components/parameters/item_name__icontains'
+                - $ref: '#/components/parameters/item_name__startwith'
+                - $ref: '#/components/parameters/item_name__istartwith'
+                - $ref: '#/components/parameters/item_price'
+                - $ref: '#/components/parameters/item_price__lt'
+                - $ref: '#/components/parameters/item_price__gt'
+                - name: ordering
+                  description: 'The ordering of the list. Available fields are: "name", "price"'
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      description: 'A string of fields separated by a comma.'
+                  example: 'name'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    count:
+                                        type: integer
+                                        description: The number of elements in the response.
+                                        example: 10
+                                    next:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The next page of elements.
+                                        example: 'http://foo.com/api/v1/items/?limit=10&offset=10'
+                                    previous:
+                                        type: string
+                                        format: url
+                                        nullable: true
+                                        description: The previous page of elements.
+                                        example: 'http://foo.com/api/v1/items/?limit=10&offset=0'
+                                    results:
+                                        type: array
+                                        description: The list of items.
+                                        items:
+                                            $ref: '#/components/schemas/item'
+                                required:
+                                    - count
+                                    - next
+                                    - previous
+                                    - results
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/items/{item_id}:
+        get:
+            tags: [Items]
+            summary: Gets an item info.
+            parameters:
+                - $ref: '#/components/parameters/item_id'
+                - $ref: '#/components/parameters/item_name'
+                - $ref: '#/components/parameters/item_name__iexact'
+                - $ref: '#/components/parameters/item_name__contains'
+                - $ref: '#/components/parameters/item_name__icontains'
+                - $ref: '#/components/parameters/item_name__startwith'
+                - $ref: '#/components/parameters/item_name__istartwith'
+                - $ref: '#/components/parameters/item_price'
+                - $ref: '#/components/parameters/item_price__lt'
+                - $ref: '#/components/parameters/item_price__gt'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/item'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/purchase/:
+        post:
+            tags: [Purchase]
+            summary: Purchases a list of items.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                items:
+                                    type: array
+                                    minItems: 1
+                                    items:
+                                        type: object
+                                        properties:
+                                            item_id:
+                                                type: integer
+                                                description: The item id.
+                                                example: 1
+                                            quantity:
+                                                type: integer
+                                                description: The item quantity.
+                                                example: 3
+                                        required:
+                                            - item_id
+                                            - quantity
+                            required:
+                                - items
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    checkout_url:
+                                        type: string
+                                        format: url
+                                        description: The checkout url.
+                                        example: 'https://www.mollie.com/checkout/vyg47ifr988bJHVV6'
+                '400':
+                    description: Bad Request.
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - type: object
+                                      properties:
+                                          detail:
+                                              type: string
+                                              description: error detail.
+                                              example: 'Invalid JSON.'
+                                    - type: object
+                                      properties:
+                                          items:
+                                              type: array
+                                              items:
+                                                  oneOf:
+                                                      - type: object
+                                                        properties:
+                                                            item_id:
+                                                                type: array
+                                                                items:
+                                                                    type: string
+                                                                    description: item_id related error.
+                                                                    example: 'This field may not be blank.'
+                                                            quantity:
+                                                                type: array
+                                                                items:
+                                                                    type: string
+                                                                    description: quantity related error.
+                                                                    example: 'This field may not be blank.'
+                                                      - type: array
+                                                        items:
+                                                            type: string
+                                                            description: items related error.
+                                                            example: 'This field may not be blank.'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
